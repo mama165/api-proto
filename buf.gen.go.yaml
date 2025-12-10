@@ -1,0 +1,24 @@
+# Generate stubs for go proto
+# Build client/server gRPC
+# Build REST handlers for gRPC Gateway
+#   • proto message types          → protoc-gen-go
+#   • gRPC client & server bindings   → protoc-gen-go-grpc
+#   • REST → gRPC gateway handlers    → protoc-gen-grpc-gateway
+# Output is written to: ./generated/go
+version: v1
+plugins:
+  - name: go
+    out: generated/go
+    opt:
+      # Keeps generated files relative to the proto path.
+      - paths=source_relative
+
+  - name: go-grpc
+    out: generated/go
+    opt:
+      - paths=source_relative
+
+  - name: grpc-gateway
+    out: generated/go
+    opt:
+      - paths=source_relative

@@ -1,0 +1,43 @@
+syntax = "proto3";
+package robot.robopb;
+
+import "google/protobuf/timestamp.proto";
+
+// go_package defines how the generated Go files should be imported and what
+// package name they should use. The path before the semicolon is the Go module
+// import path, and the identifier after the semicolon specifies the Go package
+// name used inside the generated code.
+option go_package ="github.com/mama165/api-proto/generated/go/robot;robotpb";
+
+
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+message GetRobotRequest {
+  string id = 1;
+}
+
+message GetRobotResponse {
+  Robot robot = 1;
+}
+
+message CreateRobotRequest {
+  string name = 1;
+  string model = 2;
+}
+
+message CreateRobotResponse {
+  Robot robot = 1;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+// -----------------------------------------------------------------------------
+// Domain model
+// -----------------------------------------------------------------------------
+
+message Robot {
+  string id = 1;
+  string name = 2;
+  string model = 3;
+}

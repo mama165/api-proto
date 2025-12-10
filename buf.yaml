@@ -1,0 +1,60 @@
+version: v1
+
+# -----------------------------------------------------------------------------
+# Buf module configuration
+# -----------------------------------------------------------------------------
+# This file defines:
+#   • where your local .proto files are located
+#   • which external proto dependencies to use (Buf Registry)
+#   • linting rules for API quality
+# -----------------------------------------------------------------------------
+
+build:
+  # All your .proto files should live under the "proto" directory.
+  roots:
+    - proto
+
+# External dependencies automatically resolved by Buf.
+# No need for vendor/ or manually copying third-party .proto files.
+deps:
+  # Google API protos (annotations, http rules, types, rpc, etc.)
+  - buf.build/googleapis/googleapis
+
+  # gRPC-Gateway annotations (required for OpenAPI v2 generation)
+  - buf.build/grpc-ecosystem/grpc-gateway
+
+  # Uncomment if your protos use protoc-gen-validate (PGV)
+  # - buf.build/bufbuild/protoc-gen-validate
+
+# -----------------------------------------------------------------------------
+# Lint rules
+# -----------------------------------------------------------------------------
+# These provide a strong baseline while keeping flexibility during development.
+lint:
+  use:
+    # Default rules recommended by Buf.
+    - DEFAULT
+
+    # Enforce documentation on messages, fields, services, and RPCs.
+    - COMMENTS
+
+    # Only allow unary RPCs (no streaming).
+    - UNARY_RPC
+
+    # Prevents circular imports between proto packages.
+    - PACKAGE_NO_IMPORT_CYCLE
+
+  # Rules explicitly disabled for flexibility:
+  except:
+    # Allows package names without a ".v1" or ".v2" suffix.
+    - PACKAGE_VERSION_SUFFIX
+
+    # Allows custom naming conventions for RPC responses.
+    - RPC_RESPONSE_STANDARD_NAME
+
+    # Allows request/response messages to be reused across multiple RPCs.
+    - RPC_REQUEST_RESPONSE_UNIQUE
+
+  # Allows the use of google.proto.Empty in RPCs.
+  rpc_allow_google_protobuf_empty_requests: true
+  rpc_allow_google_protobuf_empty_responses: true

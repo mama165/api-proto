@@ -1,0 +1,26 @@
+version: v1
+
+# -----------------------------------------------------------------------------
+# TypeScript / JavaScript SDK generation
+# -----------------------------------------------------------------------------
+# Generates:
+#   • JavaScript proto models       → protoc-gen-js
+#   • TypeScript gRPC-web stubs        → protoc-gen-ts
+#
+# Output is written to: ./generated/ts
+# -----------------------------------------------------------------------------
+
+plugins:
+  # JavaScript proto runtime
+  - name: js
+    out: generated/ts
+    opt:
+      # CommonJS modules + binary wire format
+      - import_style=commonjs,binary
+
+  # TypeScript definitions and grpc-web client stubs
+  - name: ts
+    path: protoc-gen-ts
+    out: generated/ts
+    opt:
+      - service=grpc-web

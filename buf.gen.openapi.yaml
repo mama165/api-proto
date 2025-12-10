@@ -1,0 +1,34 @@
+version: v1
+
+# -----------------------------------------------------------------------------
+# OpenAPI v2 generation (Swagger)
+# -----------------------------------------------------------------------------
+# Uses grpc-gateway's protoc-gen-openapiv2 to produce a REST specification.
+# Output is written to: ./docs/openapi
+#
+# Notes:
+#   • "strategy: all" merges all services into one single OpenAPI file.
+#   • "merge_file_name" defines the base output name.
+#   • Suitable for documentation (Redoc, Swagger UI).
+# -----------------------------------------------------------------------------
+
+plugins:
+  - name: openapiv2
+    out: generated/openapi
+    strategy: all
+    opt:
+      # Fully qualified names → stable naming across services/packages.
+      - openapi_naming_strategy=fqn
+
+      # Merge all generated fragments into a single file.
+      - allow_merge
+      - merge_file_name=api
+
+      # Use raw JSON field names instead of proto-style lowerCamelCase.
+      - json_names_for_fields=false
+
+      # Add package names to OpenAPI tags.
+      - include_package_in_tags
+
+      # Proper support for optional fields in proto3.
+      - proto3_optional_nullable=true
