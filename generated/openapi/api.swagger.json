@@ -1,0 +1,172 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "robot/robotpb/robot.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "robot.service_robotpb.RobotService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/robots": {
+      "post": {
+        "summary": "POST /robots",
+        "operationId": "RobotService_CreateRobot",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/robot.robotpb.CreateRobotResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/robot.robotpb.CreateRobotRequest"
+            }
+          }
+        ],
+        "tags": [
+          "robot.service_robotpb.RobotService"
+        ]
+      }
+    },
+    "/robots/{id}": {
+      "get": {
+        "summary": "GET /robots/{id}",
+        "operationId": "RobotService_GetRobot",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/robot.robotpb.GetRobotResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/google.rpc.Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "Id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "robot.service_robotpb.RobotService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "google.protobuf.Any": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "google.rpc.Status": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/google.protobuf.Any"
+          }
+        }
+      }
+    },
+    "robot.robotpb.CreateRobotRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name"
+        },
+        "model": {
+          "type": "string",
+          "title": "model"
+        }
+      },
+      "title": "CreateRobotRequest"
+    },
+    "robot.robotpb.CreateRobotResponse": {
+      "type": "object",
+      "properties": {
+        "robot": {
+          "$ref": "#/definitions/robot.robotpb.Robot",
+          "title": "robot"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "title": "created_at"
+        }
+      },
+      "title": "CreateRobotResponse"
+    },
+    "robot.robotpb.GetRobotResponse": {
+      "type": "object",
+      "properties": {
+        "robot": {
+          "$ref": "#/definitions/robot.robotpb.Robot",
+          "title": "robot"
+        }
+      },
+      "title": "GetRobotResponse"
+    },
+    "robot.robotpb.Robot": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "id"
+        },
+        "name": {
+          "type": "string",
+          "title": "name"
+        },
+        "model": {
+          "type": "string",
+          "title": "model"
+        }
+      },
+      "title": "Robot"
+    }
+  }
+}

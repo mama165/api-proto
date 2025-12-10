@@ -1,0 +1,31 @@
+syntax = "proto3";
+package robot.service_robotpb;
+import "robot/robotpb/robot.proto";
+import "google/api/annotations.proto";
+
+// Go package for generated code
+option go_package ="github.com/mama165/api-proto/generated/go/service_robot;service_robotpb";
+
+
+// -----------------------------------------------------------------------------
+// RobotService: Example without version in package name
+// -----------------------------------------------------------------------------
+
+// RobotService
+service RobotService {
+  // GET /robots/{id}
+  rpc GetRobot(robotpb.GetRobotRequest) returns (robotpb.GetRobotResponse) {
+    option (google.api.http) = {
+      get: "/robots/{id}"
+    };
+  }
+
+  // POST /robots
+  rpc CreateRobot(robotpb.CreateRobotRequest) returns (robotpb.CreateRobotResponse) {
+    option (google.api.http) = {
+      post: "/robots"
+      body: "*"
+    };
+  }
+}
+

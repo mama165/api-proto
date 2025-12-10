@@ -1,151 +1,67 @@
-# -----------------------------------------------------------------------------
-# Output & environment configuration
-# -----------------------------------------------------------------------------
-
-SRC_OUT_DIR := generated        # All generated artifacts (go, ts, openapi)
-DOC_OUT_DIR := docs             # Your documentation directory
+# Configuration
+SRC_OUT_DIR := generated
+DOC_OUT_DIR := openapi
 ENV_FILE := .env
 PORT := 8765
 
 ifndef BASE_DIR
-	BASE_DIR := $(shell pwd)
+  BASE_DIR := $(shell pwd)
 endif
 
 API_BASE_URL ?= localhost
 API_VERSION ?= 0.0.0-dev.$(shell date +%Y%m%d%H%M%S)+$(shell git rev-parse --short HEAD)
 
-# Load environment variables
 include $(ENV_FILE)
 
-# Main entry point
-all: lint gen-go gen-ts gen-doc
+all: buf-update lint gen-go gen-ts gen-doc
 
-
-# -----------------------------------------------------------------------------
-# Run everything inside the Docker generator image
-# Generate everything (protos + SDK + docs)
-# -----------------------------------------------------------------------------
+buf-update:
+	buf dep update
 
 all-in-docker: build-docker-image
-	@docker run --rm \
-		-v $(BASE_DIR):/api \
-		-v gopkg_cache:/home/${USER}/go/pkg \
-		-v go_cache:/home/${USER}/.cache/go-build \
-		-v buf_cache:/home/${USER}/.cache/buf \
-		--env BASE_DIR=$(BASE_DIR) \
-		livingpackets/livingpacketsapis /bin/sh -c \
-			"sudo chown -R ${USER} /home/${USER} && make all"
+	docker run --rm \
+      -v /mnt/c/Users/Maël/Desktop/develop/api-proto:/workspace \
+      -v go_pkg_cache:/go/pkg \
+      -v go_build_cache:/go/.cache/go-build \
+      -v buf_cache:/go/.cache/buf \
+      --workdir /workspace \
+      -e PATH=/workspace/node_modules/.bin:/go/bin:/usr/local/bin:/usr/bin \
+      api-proto /bin/bash -c "make all-no-docker"
 
-
-# -----------------------------------------------------------------------------
-# Build Dockerfile that contains protoc, buf and all generators
-# -----------------------------------------------------------------------------
+# Nouvelle cible qui ne fait pas appel à docker pour éviter boucle infinie
+all-no-docker: buf-update lint gen-go gen-ts gen-doc
 
 build-docker-image:
-	@docker build \
-		--build-arg UID=$(shell id -u ${USER}) \
-		--build-arg USER=${USER} \
-		--build-arg PROTOBUF_VERSION=$(PROTOBUF_VERSION) \
-		--build-arg PROTOC_GEN_GO_GRPC=$(PROTOC_GEN_GO_GRPC) \
-		--build-arg GRPC_GATEWAY_VERSION=$(GRPC_GATEWAY_VERSION) \
-		--build-arg BUFBUILD_VERSION=$(BUFBUILD_VERSION) \
-		--build-arg SWAGGER_VERSION=$(SWAGGER_VERSION) \
-		-t livingpackets/livingpacketsapis .
-
-
-# -----------------------------------------------------------------------------
-# Lint proto files via BUF
-# -----------------------------------------------------------------------------
+	docker build \
+	  --build-arg PROTOBUF_VERSION=$(PROTOBUF_VERSION) \
+	  --build-arg PROTOC_GEN_GO_GRPC=$(PROTOC_GEN_GO_GRPC) \
+	  --build-arg GRPC_GATEWAY_VERSION=$(GRPC_GATEWAY_VERSION) \
+	  --build-arg BUFBUILD_VERSION=$(BUFBUILD_VERSION) \
+	  --build-arg SWAGGER_VERSION=$(SWAGGER_VERSION) \
+	  -t api-proto .
 
 lint:
-	@buf lint
-
-
-# -----------------------------------------------------------------------------
-# Generate GO sources (proto + gRPC + gRPC-gateway handlers)
-# -----------------------------------------------------------------------------
+	buf dep update
+	buf lint
 
 gen-go:
-	@rm -rf ./generated/go
-	@buf generate --template buf.gen.go.yaml
-
-	# Initialize a Go module so the generated folder is importable
-	@cd generated/go && \
-		go mod init github.com/yourorg/yourrepo/generated/go && \
-		go mod tidy
-
-
-# -----------------------------------------------------------------------------
-# Generate TypeScript (JS + TS + gRPC-web)
-# -----------------------------------------------------------------------------
+	rm -rf $(SRC_OUT_DIR)/go
+	buf generate --template buf.gen.yaml
 
 gen-ts:
-	@rm -rf ./generated/ts
-	@buf generate --template buf.gen.ts.yaml
-
-	# package.json for NPM publishing
-	@export API_VERSION='$(API_VERSION)'; \
-		echo '{"name": "@yourorg/protos", "version": "$$API_VERSION"}' \
-		| envsubst | jq . > ./generated/ts/package.json
-
-	# Install TS dependencies (grpc-web runtime)
-	@cd ./generated/ts && \
-		npm install --save \
-			google-protobuf \
-			@types/google-protobuf \
-			@improbable-eng/grpc-web
-
-
-# -----------------------------------------------------------------------------
-# Generate OpenAPI documentation (.swagger.json)
-# And build HTML docs through Redocly
-# -----------------------------------------------------------------------------
+	rm -rf $(SRC_OUT_DIR)/ts
+	# Installer TS plugins localement
+	#npm install --save-dev ts-protoc-gen@0.15.0 google-protobuf grpc-web
+	buf generate --template buf.gen.ts.yaml
 
 gen-doc:
-	@rm -rf ./generated/openapi
-	@buf generate --template buf.gen.openapi.yaml
+	rm -rf $(SRC_OUT_DIR)/openapi
+	buf generate --template buf.gen.openapi.yaml
 
-	@echo "Building Redoc documentation…"
-	@redoc-cli build \
-		-o $(DOC_OUT_DIR)/index.html \
-		./generated/openapi/api.swagger.json
-
-
-# -----------------------------------------------------------------------------
-# Serve docs locally using Dockerized nginx
-#
-# -----------------------------------------------------------------------------
+	redoc-cli build -o $(DOC_OUT_DIR)/index.html \
+	  $(SRC_OUT_DIR)/openapi/api.swagger.json
 
 serve-doc-in-docker: all-in-docker
-	@docker run --rm -p $(PORT):80 \
-		-v $(BASE_DIR)/docs:/usr/share/nginx/html:ro \
-		nginx:alpine
-
-
-# -----------------------------------------------------------------------------
-# Tools + dynamic env-file
-# -----------------------------------------------------------------------------
-
-EXTRACT_LAST_VERSION := sed 's/^.* \[//;s/\]$$//' | tr ' ' '\n' | grep -v '-' | sort -V | tail -n 1
-RUN_GOLANG := run --rm golang:1.23.0-bookworm
-GO_LIST := go list -m -versions
-
-env-file:
-	@echo '# env for Dockerfile' > $(ENV_FILE)
-	@echo '# generated by "make env-file"' >> $(ENV_FILE)
-
-	@echo -n 'PROTOBUF_VERSION=' >> $(ENV_FILE)
-	@docker $(RUN_GOLANG) bash -c "$(GO_LIST) google.golang.org/protobuf | $(EXTRACT_LAST_VERSION)" >> $(ENV_FILE)
-
-	@echo -n 'PROTOC_GEN_GO_GRPC=' >> $(ENV_FILE)
-	@docker $(RUN_GOLANG) bash -c "$(GO_LIST) google.golang.org/grpc/cmd/protoc-gen-go-grpc | $(EXTRACT_LAST_VERSION)" >> $(ENV_FILE)
-
-	@echo -n 'GRPC_GATEWAY_VERSION=' >> $(ENV_FILE)
-	@docker $(RUN_GOLANG) bash -c "$(GO_LIST) github.com/grpc-ecosystem/grpc-gateway/v2 | $(EXTRACT_LAST_VERSION)" >> $(ENV_FILE)
-
-	@echo -n 'BUFBUILD_VERSION=' >> $(ENV_FILE)
-	@docker $(RUN_GOLANG) bash -c "$(GO_LIST) github.com/bufbuild/buf | $(EXTRACT_LAST_VERSION)" >> $(ENV_FILE)
-
-	@echo '' >> $(ENV_FILE)
-	@echo '# Swagger still locked because of issue 3118' >> $(ENV_FILE)
-	@echo 'SWAGGER_VERSION=v0.30.5' >> $(ENV_FILE)
+	docker run --rm -p $(PORT):80 \
+	  -v $(BASE_DIR)/docs:/usr/share/nginx/html:ro \
+	  nginx:alpine

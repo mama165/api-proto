@@ -1,0 +1,49 @@
+# --------------------------------------------------------------------
+# buf.gen.yaml
+# --------------------------------------------------------------------
+# This file configures Buf plugins to generate code from your proto files.
+# You can generate multiple languages and outputs from the same file.
+# --------------------------------------------------------------------
+version: v1
+
+plugins:
+  # -------------------------------
+  # Generate Go structs from proto
+  # -------------------------------
+  - name: go
+    out: generated/go                 # Output directory for Go structs
+    opt:
+      - paths=source_relative         # Keeps file paths relative to proto sources
+
+  # -------------------------------
+  # Generate gRPC server & client
+  # -------------------------------
+  - name: go-grpc
+    out: generated/go                 # Output directory for gRPC code
+    opt:
+      - paths=source_relative         # Keeps file paths relative to proto sources
+
+  # -------------------------------
+  # Generate REST handlers (gRPC-Gateway)
+  # -------------------------------
+  - name: grpc-gateway
+    out: generated/go                 # Output directory for REST gateway
+    opt:
+      - paths=source_relative         # Keeps file paths relative to proto sources
+
+  # -------------------------------
+  # Generate OpenAPI / Swagger docs
+  # -------------------------------
+  - name: openapiv2
+    out: generated/openapi            # Output directory for OpenAPI JSON/YAML
+    opt:
+      - allow_merge=true              # Merge multiple service definitions into one file
+      - logtostderr=true              # Log plugin output to stderr
+
+  # -------------------------------
+  # Generate TypeScript (gRPC-web)
+  # -------------------------------
+  - name: ts
+    out: generated/ts                 # Output directory for TypeScript files
+    opt:
+      - use_optionals=true            # Use optional fields in generated TS types
