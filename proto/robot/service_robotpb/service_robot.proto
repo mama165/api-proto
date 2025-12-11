@@ -4,8 +4,7 @@ import "robot/robotpb/robot.proto";
 import "google/api/annotations.proto";
 
 // Go package for generated code
-option go_package ="github.com/mama165/api-proto/generated/go/service_robot;service_robotpb";
-
+option go_package = "github.com/mama165/api-proto/generated/go/robot/service_robotpb";
 
 // -----------------------------------------------------------------------------
 // RobotService: Example without version in package name

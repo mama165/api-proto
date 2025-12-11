@@ -1,6 +1,6 @@
 # Configuration
 SRC_OUT_DIR := generated
-DOC_OUT_DIR := openapi
+DOC_OUT_DIR := docs
 ENV_FILE := .env
 PORT := 8765
 
@@ -50,16 +50,22 @@ gen-go:
 
 gen-ts:
 	rm -rf $(SRC_OUT_DIR)/ts
-	# Installer TS plugins localement
-	#npm install --save-dev ts-protoc-gen@0.15.0 google-protobuf grpc-web
 	buf generate --template buf.gen.ts.yaml
 
+OPENAPI_OUT_DIR := $(SRC_OUT_DIR)/openapi
+
 gen-doc:
-	rm -rf $(SRC_OUT_DIR)/openapi
+	# Supprimer l'ancien dossier docs
+	rm -rf $(DOC_OUT_DIR)
+	mkdir -p $(DOC_OUT_DIR)
+
+	# Générer OpenAPI dans generated/openapi
 	buf generate --template buf.gen.openapi.yaml
 
-	redoc-cli build -o $(DOC_OUT_DIR)/index.html \
-	  $(SRC_OUT_DIR)/openapi/api.swagger.json
+	# Construire ReDoc et placer le HTML dans docs/
+	redoc-cli build \
+	  -o $(DOC_OUT_DIR)/index.html \
+	  $(OPENAPI_OUT_DIR)/api.swagger.json
 
 serve-doc-in-docker: all-in-docker
 	docker run --rm -p $(PORT):80 \

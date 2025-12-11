@@ -7,8 +7,7 @@ import "google/protobuf/timestamp.proto";
 // package name they should use. The path before the semicolon is the Go module
 // import path, and the identifier after the semicolon specifies the Go package
 // name used inside the generated code.
-option go_package ="github.com/mama165/api-proto/generated/go/robot;robotpb";
-
+option go_package = "github.com/mama165/api-proto/generated/go/robot/robotpb";
 
 // -----------------------------------------------------------------------------
 // Requests / Responses

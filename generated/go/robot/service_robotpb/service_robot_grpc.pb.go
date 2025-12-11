@@ -8,7 +8,7 @@ package service_robotpb
 
 import (
 	context "context"
-	robot "github.com/mama165/api-proto/generated/go/robot"
+	robotpb "github.com/mama165/api-proto/generated/go/robot/robotpb"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -31,9 +31,9 @@ const (
 // RobotService
 type RobotServiceClient interface {
 	// GET /robots/{id}
-	GetRobot(ctx context.Context, in *robot.GetRobotRequest, opts ...grpc.CallOption) (*robot.GetRobotResponse, error)
+	GetRobot(ctx context.Context, in *robotpb.GetRobotRequest, opts ...grpc.CallOption) (*robotpb.GetRobotResponse, error)
 	// POST /robots
-	CreateRobot(ctx context.Context, in *robot.CreateRobotRequest, opts ...grpc.CallOption) (*robot.CreateRobotResponse, error)
+	CreateRobot(ctx context.Context, in *robotpb.CreateRobotRequest, opts ...grpc.CallOption) (*robotpb.CreateRobotResponse, error)
 }
 
 type robotServiceClient struct {
@@ -44,9 +44,9 @@ func NewRobotServiceClient(cc grpc.ClientConnInterface) RobotServiceClient {
 	return &robotServiceClient{cc}
 }
 
-func (c *robotServiceClient) GetRobot(ctx context.Context, in *robot.GetRobotRequest, opts ...grpc.CallOption) (*robot.GetRobotResponse, error) {
+func (c *robotServiceClient) GetRobot(ctx context.Context, in *robotpb.GetRobotRequest, opts ...grpc.CallOption) (*robotpb.GetRobotResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(robot.GetRobotResponse)
+	out := new(robotpb.GetRobotResponse)
 	err := c.cc.Invoke(ctx, RobotService_GetRobot_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -54,9 +54,9 @@ func (c *robotServiceClient) GetRobot(ctx context.Context, in *robot.GetRobotReq
 	return out, nil
 }
 
-func (c *robotServiceClient) CreateRobot(ctx context.Context, in *robot.CreateRobotRequest, opts ...grpc.CallOption) (*robot.CreateRobotResponse, error) {
+func (c *robotServiceClient) CreateRobot(ctx context.Context, in *robotpb.CreateRobotRequest, opts ...grpc.CallOption) (*robotpb.CreateRobotResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(robot.CreateRobotResponse)
+	out := new(robotpb.CreateRobotResponse)
 	err := c.cc.Invoke(ctx, RobotService_CreateRobot_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -71,9 +71,9 @@ func (c *robotServiceClient) CreateRobot(ctx context.Context, in *robot.CreateRo
 // RobotService
 type RobotServiceServer interface {
 	// GET /robots/{id}
-	GetRobot(context.Context, *robot.GetRobotRequest) (*robot.GetRobotResponse, error)
+	GetRobot(context.Context, *robotpb.GetRobotRequest) (*robotpb.GetRobotResponse, error)
 	// POST /robots
-	CreateRobot(context.Context, *robot.CreateRobotRequest) (*robot.CreateRobotResponse, error)
+	CreateRobot(context.Context, *robotpb.CreateRobotRequest) (*robotpb.CreateRobotResponse, error)
 	mustEmbedUnimplementedRobotServiceServer()
 }
 
@@ -84,10 +84,10 @@ type RobotServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRobotServiceServer struct{}
 
-func (UnimplementedRobotServiceServer) GetRobot(context.Context, *robot.GetRobotRequest) (*robot.GetRobotResponse, error) {
+func (UnimplementedRobotServiceServer) GetRobot(context.Context, *robotpb.GetRobotRequest) (*robotpb.GetRobotResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRobot not implemented")
 }
-func (UnimplementedRobotServiceServer) CreateRobot(context.Context, *robot.CreateRobotRequest) (*robot.CreateRobotResponse, error) {
+func (UnimplementedRobotServiceServer) CreateRobot(context.Context, *robotpb.CreateRobotRequest) (*robotpb.CreateRobotResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRobot not implemented")
 }
 func (UnimplementedRobotServiceServer) mustEmbedUnimplementedRobotServiceServer() {}
@@ -112,7 +112,7 @@ func RegisterRobotServiceServer(s grpc.ServiceRegistrar, srv RobotServiceServer)
 }
 
 func _RobotService_GetRobot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(robot.GetRobotRequest)
+	in := new(robotpb.GetRobotRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -124,13 +124,13 @@ func _RobotService_GetRobot_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: RobotService_GetRobot_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RobotServiceServer).GetRobot(ctx, req.(*robot.GetRobotRequest))
+		return srv.(RobotServiceServer).GetRobot(ctx, req.(*robotpb.GetRobotRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _RobotService_CreateRobot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(robot.CreateRobotRequest)
+	in := new(robotpb.CreateRobotRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func _RobotService_CreateRobot_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: RobotService_CreateRobot_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RobotServiceServer).CreateRobot(ctx, req.(*robot.CreateRobotRequest))
+		return srv.(RobotServiceServer).CreateRobot(ctx, req.(*robotpb.CreateRobotRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
