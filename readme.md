@@ -4,6 +4,13 @@ Generate Go, gRPC, REST (gRPC-Gateway), OpenAPI/Swagger, and TypeScript code fro
 
 ---
 
+## Documentation
+
+The latest API documentation is automatically generated and available at:  
+[https://mama165.github.io/api-proto/](https://mama165.github.io/api-proto/)
+
+---
+
 ## Requirements
 
 - Docker
